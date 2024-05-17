@@ -1,0 +1,8 @@
+[submodule "tman"]
+	path = tman
+	branch = master
+	url = git@github.com:roachme/tman.git
+[submodule "wd"]
+	path = wd
+	branch = master
+	url = git@github.com:roachme/wd.git
