@@ -1,0 +1,69 @@
+#!/bin/bash
+
+
+# TODO:
+# 1. scp can only copy from device, can't send to it.
+
+# DONE:
+# 1. It can, but looks disgusting.
+
+
+
+DEVIP="192.168.0.100"
+DEVUSER="root"
+DEVPASS="isbetter"
+
+# Cisco like CLI
+DEVUSER2="wimark"
+DEVPASS2="wimark"
+
+DEVOPTS=
+DEVPORT="51954"
+DEVCONF="$(pwd)/rdev.conf"
+
+
+CMD="$1"
+SRC="$2"
+DST="$3"
+
+function usage()
+{
+    cat << EOF
+Usage: rdev CMD [[SRC DST] | [REMCMD]]
+EOF
+}
+
+
+if [ -f "$DEVCONF" ]; then
+    source "$DEVCONF"
+fi
+
+
+
+
+DEVSSH="ssh ${DEVOPTS} -p ${DEVPORT} "$DEVUSER"@${DEVIP}"
+DEVSCP="scp -O -r ${DEVOPTS} -P ${DEVPORT} "$DEVUSER"@${DEVIP}:${SRC} ${DST}"
+
+
+echo "DEVIP: $DEVIP"
+
+if [ -z "$CMD" ] || [ "$CMD" == "ssh" ]; then
+    REMCMD="$2"
+    eval sshpass -p "$DEVPASS" "$DEVSSH" "$REMCMD"
+elif [ "$CMD" == "scp" ]; then
+    echo "copy file from dev"
+    echo "SRC: $SRC"
+    echo "DST: $DST"
+    eval sshpass -p "$DEVPASS" "$DEVSCP"
+elif [ "$CMD" == "scpt" ]; then
+    echo "copy file from dev"
+    echo "SRC: $SRC"
+    echo "DST: $DST"
+    DEVSCP="scp -O -r ${DEVOPTS} -P ${DEVPORT} ${SRC} "$DEVUSER"@${DEVIP}:${DST}"
+    eval sshpass -p "$DEVPASS" "$DEVSCP"
+elif [ "$CMD" == "cli" ]; then
+    DEVSSH="ssh ${DEVOPTS} -p ${DEVPORT} "$DEVUSER2"@${DEVIP}"
+    eval sshpass -p "$DEVPASS2" "$DEVSSH"
+else
+    usage
+fi
